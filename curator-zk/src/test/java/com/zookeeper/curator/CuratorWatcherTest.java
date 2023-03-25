@@ -101,4 +101,28 @@ public class CuratorWatcherTest {
 
         }
     }
+
+    /**
+     * 演示 TreeCache: 监听某个节点自己和所有子节点
+     */
+    @Test
+    public void testTreeCache() throws Exception {
+        //1.创建子节点
+        TreeCache treeCache = new TreeCache(client,"/app2");
+        //2.注册监听
+        treeCache.getListenable().addListener(new TreeCacheListener() {
+            @Override
+            public void childEvent(CuratorFramework client, TreeCacheEvent event) throws Exception {
+                System.out.println("节点变化了~");
+                System.out.println(event);
+            }
+        });
+        //3.开启监听
+        treeCache.start();
+
+        while (true) {
+
+        }
+    }
+
 }
