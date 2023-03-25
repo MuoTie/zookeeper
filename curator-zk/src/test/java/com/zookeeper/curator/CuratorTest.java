@@ -63,7 +63,9 @@ public class CuratorTest {
         String path = client.create().forPath("/app2", "hehe".getBytes());
         System.out.println(path);
 
-    }   @Test
+    }
+
+    @Test
     public void testCreat3() throws Exception {
 //        3.设置节点类型
         //默认类型：持久化
@@ -89,7 +91,6 @@ public class CuratorTest {
      * 1.查询数据：get
      * 2.查询子节点： ls
      * 3.查询子节点状态信息： ls -s
-     *
      */
     @Test
     public void testGet1() throws Exception {
@@ -102,14 +103,40 @@ public class CuratorTest {
         //查询子节点： ls
         List<String> path = client.getChildren().forPath("/app4");
         System.out.println(path);
-    } @Test
+    }
+
+    @Test
     public void testGet3() throws Exception {
         //查询子节点状态信息： ls -s
         Stat status = new Stat();
         System.out.println(status);
 
-         client.getData().storingStatIn(status).forPath("/app1");
+        client.getData().storingStatIn(status).forPath("/app1");
         System.out.println(status);
+    }
+
+    //============================================================================================
+
+
+    /**
+     * 修改数据
+     * 1.修改数据
+     * 2.根据版本修改数据
+     * @throws Exception
+     */
+    @Test
+    public void testset() throws Exception {
+    client.setData().forPath("/app1","itcast".getBytes());
+    }
+    @Test
+    public void testsetForVersion() throws Exception {
+        //查询子节点状态信息： ls -s
+        Stat status = new Stat();
+        client.getData().storingStatIn(status).forPath("/app1");
+        //version是通过查询出来的。目的是为了让其他客户端或者线程不干扰我操作
+        int version = status.getVersion();
+        System.out.println(version);
+        client.setData().withVersion(version).forPath("/app1","itcast".getBytes());
     }
 
     @After
