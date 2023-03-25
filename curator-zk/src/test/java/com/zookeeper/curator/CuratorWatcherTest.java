@@ -6,8 +6,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.BackgroundCallback;
 import org.apache.curator.framework.api.CuratorEvent;
-import org.apache.curator.framework.recipes.cache.NodeCache;
-import org.apache.curator.framework.recipes.cache.NodeCacheListener;
+import org.apache.curator.framework.recipes.cache.*;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
@@ -69,4 +68,37 @@ public class CuratorWatcherTest {
         }
     }
 
+
+    /**
+     * 演示PathChilderCache：监听某个节点的所有子节点
+     */
+    @Test
+    public void testNPathChilderCache() throws Exception {
+        //设置监听对象
+        PathChildrenCache pathChildrenCache = new PathChildrenCache(client, "/app2",true);
+        //绑定监听
+        pathChildrenCache.getListenable().addListener(new PathChildrenCacheListener() {
+            @Override
+            public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+                System.out.println("子节点变化了");
+                System.out.println(event);
+                //监听子节点的变更，并且拿到子节点变更后的数据
+                //1.获取类型
+                PathChildrenCacheEvent.Type type = event.getType();
+                //2.判断类型是否是updata
+                if(type.equals(PathChildrenCacheEvent.Type.CHILD_UPDATED)){
+                    System.out.println("子节点变化了");
+                    byte[] data = event.getData().getData();
+                    System.out.println(new String(data));
+
+                }
+            }
+        });
+        //开启监听
+        pathChildrenCache.start();
+
+        while (true) {
+
+        }
+    }
 }
