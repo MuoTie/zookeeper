@@ -4,6 +4,8 @@ package com.zookeeper.curator;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.api.BackgroundCallback;
+import org.apache.curator.framework.api.CuratorEvent;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
@@ -138,7 +140,43 @@ public class CuratorTest {
         System.out.println(version);
         client.setData().withVersion(version).forPath("/app1","itcast".getBytes());
     }
+    //============================================================================================
 
+    /**
+     * 删除节点：delete   deleteall
+     * 1.删除单个节点
+     * 2.删除带有子节点的节点
+     * 3.必须删除成功
+     * 4.回调
+     * @throws Exception
+     */
+    @Test
+    public void testDelete() throws Exception{
+        //1.删除单个节点
+        client.delete().forPath("/app1");
+    }
+    @Test
+    public void testDelete2() throws Exception{
+        //2.删除带有子节点的节点
+        client.delete().deletingChildrenIfNeeded().forPath("/app4");
+    }
+    @Test
+    public void testDelete3() throws Exception{
+        //3.必须删除成功
+        //guaranteed必然的
+        client.delete().guaranteed().forPath("/app2");
+    }
+    @Test
+    public void testDelete4() throws Exception{
+        //4.回调
+        client.delete().guaranteed().inBackground(new BackgroundCallback() {
+            @Override
+            public void processResult(CuratorFramework curatorFramework, CuratorEvent curatorEvent) throws Exception {
+                System.out.println("我被删除了~");
+                System.out.println(curatorEvent);
+            }
+        }).forPath("/app1");
+    }
     @After
     public void close() {
         if (client != null) {
